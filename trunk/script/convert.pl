@@ -45,6 +45,12 @@ if ($validateXML)
     system("find $final_pdtb_xml_dir -name \"*.xml\" -type f -exec $xmllint --noout --schema $schema/TigerXML.xsd {} \\; 2>&1") == 0
         or die "Validating the combined XML files failed: $?\n";
     print "Done validating the combined XML files.\n";
+    print "The final number of XML files should be 2159 while the actual file number is: ";
+    system("find $final_pdtb_xml_dir -name \"*.xml\" -type f | wc -l");
+}
+
+if ($generateGraph) {
+    require("$dotGraph");
 }
 
 sub process_file
