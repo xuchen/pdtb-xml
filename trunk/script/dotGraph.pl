@@ -37,6 +37,10 @@ print "Done generating DOT files.\n";
 print "Start generating $dot_lang pictures from DOT for relations.\n";
 find ({no_chdir => 1, wanted => \&generate_pic}, $pdtb_dot_dir);
 print "Done generating $dot_lang pictures.\n";
+
+print "The final number of relations should be 40600 while the actual number is: ";
+system("find $pdtb_pic_dir -name \"*.$dot_lang\" -type f | wc -l");
+
 print "The final pictures for relations are stored in $pdtb_pic_dir\n";
 
 

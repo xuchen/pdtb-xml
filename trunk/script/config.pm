@@ -11,9 +11,9 @@ $top_dir = "/home/xcyao/treebanks/pdtb-xml";
 
 ############# Swithes ################
 
-$ptbXML = 0; # convert PTB into XML
-$pdtbXML = 0; # convert PDTB into XML
-$combineXML = 0; # combine the above two into a final one
+$ptbXML = 1; # convert PTB into XML
+$pdtbXML = 1; # convert PDTB into XML
+$combineXML = 1; # combine the above two into a final one
 $validateXML = 1; # validate final XML file
 # generate graphics per relation. GraphViz and Saxon are required. It will take a long time so the default is off.
 $generateGraph = 0; 
@@ -125,7 +125,7 @@ if ($test) {
 }
 
 if (not $test) {
-    #die "You should remove the following dir before running this script!\n $output_dir" if -e $output_dir;
+    die "You should remove the following dir before running this script!\n $output_dir" if -e $output_dir;
     die "You should configure the command 'xsltproc' before running this script!\nCurrently it's: $xsltproc" if (not -e $xsltproc);
     die "You should set up the schema dir correctly before running this script!\nCurrently it's: $schema" if (not -e $schema);
     die "You should set up the corpora dir correctly before running this script!\nCurrently it's: $corpora" if (not -e $corpora);
