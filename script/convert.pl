@@ -3,7 +3,9 @@
 # This script converts the Penn Discourse TreeBank Version 2.0 into XML format.
 #
 # Usage (please first change to the script's dir and then run it):
-# perl convert.pl 
+# 
+# perl convert.pl  2>log 1>log.error
+# Output will be a mess, so please redirect it to some file 
 # 
 use File::Find;
 

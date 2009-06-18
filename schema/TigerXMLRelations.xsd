@@ -26,7 +26,7 @@
 
   <xsd:complexType name="RelationsType">
 
-    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+    <xsd:choice minOccurs="1" maxOccurs="unbounded">
       <xsd:element name="NoRel" type="RelationTypeNoRel" minOccurs="1" maxOccurs="unbounded"/>
       <xsd:element name="EntRel" type="RelationTypeEntRel" minOccurs="1" maxOccurs="unbounded"/>
       <xsd:element name="Explicit" type="RelationTypeExplicit" minOccurs="1" maxOccurs="unbounded"/>
