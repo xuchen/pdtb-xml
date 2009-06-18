@@ -11,6 +11,7 @@ use File::Find;
 
 require("config.pm");
 
+system("date");
 # Convert PTB into XML format
 if ($ptbXML)
 {
@@ -79,5 +80,6 @@ sub process_file
     }
 }
 
+system("date");
 print "Converting is done. The final files are located in:\n$final_pdtb_xml_dir\n";
 0;

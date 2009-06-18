@@ -3,7 +3,10 @@ Change log
 Version 2.1.0:
 	* Add some scripts to display and describe the relations in the DOT
 	language.
-	* minor bug fixes
+	* minor bug fixes of pdtbXMLizer, which may output 2 "SemanticClass1"
+	attributes in a "Conn2" element.
+	* major bug fixes of schemata, which may give a false positive during the
+	validation process.
 
 Version 2.0.0:
 First public release, conforming with PDTB version 2.0
