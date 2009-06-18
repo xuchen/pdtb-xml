@@ -131,9 +131,9 @@ sub generate_pic
         $combined_tree_names  .= ".dot";
 
         # Pack all tree files to produce combined compact output, such as t5t6.dot
-        if (scalar %trees != 1)
+        if (scalar keys %trees != 1)
         {
-            system("dot $all_tree_names | gvpack -g  >  $combined_tree_names");
+            system("$dot $all_tree_names | $gvpack -g  >  $combined_tree_names");
         }
 
         # Read the content of combined tree files except the last line

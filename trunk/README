@@ -20,7 +20,7 @@ But if you don't currently have PDTB v2, please stop here or purchase a copy of 
 
         1. Enter the "script" directory.
         2. Modify "config.pm" according to your own settings.
-        3. Run "perl convert.pl" in the "script" directory.
+        3. Run "perl convert.pl 2>log 1>log.error" in the "script" directory.
         4. The output XML files will be located to the position you've specified in "config.pm".
 
     How it Works
@@ -32,7 +32,7 @@ But if you don't currently have PDTB v2, please stop here or purchase a copy of 
         4. Run "xmllint" to check the final XML files against the PDTB-XML schemata.
         5. (Optional) Run GraphViz and Saxon to produce pictures.
 
-        The final output is around 700-800 MB.
+        The final output is around 700-800 MB. With pictures it's 2.3 GB.
 
     File Format
 
@@ -41,7 +41,6 @@ But if you don't currently have PDTB v2, please stop here or purchase a copy of 
     Graphic User Interface
 
         Some static, dumb and even ugly pictures can be generated for every discourse relation if you really want to see them (this process could take a long time!). This is (probably) the final support for GUI. Since every user of pdtb-xml also has the original PDTB API/Browser, which can display the relations better, no more time should be put on reinventing a GUI.
-
 
     License
 
