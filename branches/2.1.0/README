@@ -1,0 +1,51 @@
+README for the PDTB-XML Toolset
+
+So, you've decided to have some fun with XML and XQuery, huh?
+
+But if you don't currently have PDTB v2, please stop here or purchase a copy of PDTB v2 before you read on. 
+
+    Prerequisite
+        
+        To use this toolset, you need:
+            * Java 1.5 or higher
+            * xsltproc
+            * xmllint (libxml2-utils)
+            * Perl
+            * PDTB v2
+            * GraphViz (http://www.graphviz.org) (optional, to produce graphics to show relations)
+            * Saxon 9 (http://saxon.sf.net) (optional, to produce DOT files for graphics)
+        This toolset is only tested on Linux systems. Attempting to run it on other operating Systems will probably lead to failure.
+
+    Running
+
+        1. Enter the "script" directory.
+        2. Modify "config.pm" according to your own settings.
+        3. Run "perl convert.pl 2>log 1>log.error" in the "script" directory.
+        4. The output XML files will be located to the position you've specified in "config.pm".
+
+    How it Works
+
+        This toolset performs the following procedures upon execution.
+        1. Run a modified copy of TIGERSearch (jar/ptbXMLizer.jar) to convert the .mrg PTB files into TIGER-XML format.
+        2. Run a modified copy of PDTB API (jar/pdtbXMLizer.jar) to convert the .pdtb PDTB files into XML format.
+        3. Run "xsltproc" with a XLST stylesheet to combine the above two.
+        4. Run "xmllint" to check the final XML files against the PDTB-XML schemata.
+        5. (Optional) Run GraphViz and Saxon to produce pictures.
+
+        The output is around 700-800 MB. With pictures it's 6.0 GB. This includes a lot of intermediate files. The final and pure PDTB-XML files are about 373 MB.
+
+    File Format
+
+        The final XML format is an enriched version of TIGER-XML format. The syntactic tree structure could still be displayed by the TIGERSearch software. For an overview of the XML file format, refer to the schemata in the "schema" dir or more directly, the .png file in the "mm" dir. The source file for the XML structures, mm/PDTB-XML.mm, which can be edited by Freemind 0.9, is also included.
+        
+    Graphic User Interface
+
+        Some static, dumb and even ugly pictures can be generated for every discourse relation if you really want to see them (this process could take 10 hours!). This is (probably) the final support for GUI. Since every user of pdtb-xml also has the original PDTB API/Browser, which can display the relations better, no more time should be put on reinventing a GUI.
+
+    License
+
+        This toolset contains different programs with different licenses, read the file LICENSE for details.
+
+    That's All?
+
+        Maybe, maybe not. You are now on your own to perform queries on these XML files.

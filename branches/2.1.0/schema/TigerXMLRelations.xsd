@@ -1,0 +1,340 @@
+<?xml version="1.0"?>
+
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+ <!-- ===========================================================================
+      XML Schema for the Relations part of the TIGER-XML format
+      ===========================================================================
+      TIGER Project, Wolfgang Lezius
+      IMS, University of Stuttgart, 04/01/2003
+      ===========================================================================
+      Xuchen Yao. May 10, 2009. Add PDTB Relations Definition
+      =========================================================================== -->
+
+  <!-- ======================================================
+       DECLARATION OF RELATIONS
+       ====================================================== -->
+
+
+  <!-- declaration of the Relations element -->
+
+  <xsd:element name="Relations" type="RelationsType" />
+
+
+  <!-- declaration of the Relations type -->
+
+  <xsd:complexType name="RelationsType">
+
+    <xsd:choice minOccurs="1" maxOccurs="unbounded">
+      <xsd:element name="NoRel" type="RelationTypeNoRel" minOccurs="1" maxOccurs="unbounded"/>
+      <xsd:element name="EntRel" type="RelationTypeEntRel" minOccurs="1" maxOccurs="unbounded"/>
+      <xsd:element name="Explicit" type="RelationTypeExplicit" minOccurs="1" maxOccurs="unbounded"/>
+      <xsd:element name="AltLex" type="RelationTypeAltLex" minOccurs="1" maxOccurs="unbounded"/>
+      <xsd:element name="Implicit" type="RelationTypeImplicit" minOccurs="1" maxOccurs="unbounded"/>
+    </xsd:choice>
+
+  </xsd:complexType>
+
+      <!--
+  <xs:complexType name="RelationType" abstract="true" />
+
+    <xsd:complexType name="EntRel">
+
+      <xsd:complexContent>
+        <xsd:extension base="RelationType">
+          <xsd:attribute name="EntRel" type="xsd:string" />
+        </xsd:extension>
+      </xsd:complexContent>
+
+    </xsd:complexType>
+      -->
+
+
+  <!-- declaration of the EntRel Relation type (wrapper for RelationClass type) -->
+
+  <xsd:complexType name="RelationTypeEntRel">
+    <xsd:sequence>
+      <xsd:element name="Relation" type="RelationClassEntRel"  minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- declaration of the NoRel Relation type (wrapper for RelationClass type) -->
+
+  <xsd:complexType name="RelationTypeNoRel">
+    <xsd:sequence>
+      <xsd:element name="Relation" type="RelationClassNoRel"  minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- declaration of the Explicit Relation type (wrapper for RelationClass type) -->
+
+  <xsd:complexType name="RelationTypeExplicit">
+    <xsd:sequence>
+      <xsd:element name="Relation" type="RelationClassExplicit"  minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- declaration of the AltLex Relation type (wrapper for RelationClass type) -->
+
+  <xsd:complexType name="RelationTypeAltLex">
+    <xsd:sequence>
+      <xsd:element name="Relation" type="RelationClassAltLex"  minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- declaration of the Implicit Relation type (wrapper for RelationClass type) -->
+
+  <xsd:complexType name="RelationTypeImplicit">
+    <xsd:sequence>
+      <xsd:element name="Relation" type="RelationClassImplicit"  minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+
+  <!-- declaration of the EntRel Relation Class -->
+
+  <xsd:complexType name="RelationClassEntRel">
+ 
+    <xsd:sequence>
+      <xsd:element name="Arg1"   type="ArgTypeSimple"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Arg2"   type="ArgTypeSimple"   minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+
+    <xsd:attribute name="id" type="idType" use="required" />
+    <xsd:attribute name="Class" use="required" >
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string" >
+          <xsd:enumeration value="EntRel" /> 
+        </xsd:restriction>
+    </xsd:simpleType>
+    </xsd:attribute>
+
+ </xsd:complexType>
+
+  <!-- declaration of the NoRel Relation Class -->
+
+  <xsd:complexType name="RelationClassNoRel">
+ 
+    <xsd:sequence>
+      <xsd:element name="Arg1"   type="ArgTypeSimple"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Arg2"   type="ArgTypeSimple"   minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+
+    <xsd:attribute name="id" type="idType" use="required" />
+    <xsd:attribute name="Class" use="required" >
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string" >
+          <xsd:enumeration value="NoRel" /> 
+        </xsd:restriction>
+    </xsd:simpleType>
+    </xsd:attribute>
+
+ </xsd:complexType>
+
+  <!-- declaration of the Explicit Relation Class -->
+
+  <xsd:complexType name="RelationClassExplicit">
+ 
+    <xsd:sequence>
+      <xsd:element name="ConnHead"   type="ConnHeadTypeExplicit"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Sup1"   type="ArgTypeSimple"   minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="Arg1"   type="ArgTypeComplex"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Arg2"   type="ArgTypeComplex"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Sup2"   type="ArgTypeSimple"   minOccurs="0" maxOccurs="1"/>
+    </xsd:sequence>
+
+    <xsd:attribute name="id" type="idType" use="required" />
+    <xsd:attribute name="Class" use="required" >
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string" >
+          <xsd:enumeration value="Explicit" /> 
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attributeGroup ref="RelationFeatures" />
+
+ </xsd:complexType>
+
+  <!-- declaration of the AltLex Relation Class -->
+
+  <xsd:complexType name="RelationClassAltLex">
+ 
+    <xsd:sequence>
+      <xsd:element name="ConnHead"   type="ConnHeadTypeAltLex"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Sup1"   type="ArgTypeSimple"   minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="Arg1"   type="ArgTypeComplex"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Arg2"   type="ArgTypeComplex"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Sup2"   type="ArgTypeSimple"   minOccurs="0" maxOccurs="1"/>
+    </xsd:sequence>
+
+    <xsd:attribute name="id" type="idType" use="required" />
+    <xsd:attribute name="Class" use="required" >
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string" >
+          <xsd:enumeration value="AltLex" /> 
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attributeGroup ref="RelationFeatures" />
+
+ </xsd:complexType>
+
+  <!-- declaration of the Implicit Relation Class -->
+
+  <xsd:complexType name="RelationClassImplicit">
+ 
+    <xsd:sequence>
+      <xsd:element name="ConnHead"   type="ConnHeadTypeImplicit"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Sup1"   type="ArgTypeSimple"   minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="Arg1"   type="ArgTypeComplex"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Arg2"   type="ArgTypeComplex"   minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Sup2"   type="ArgTypeSimple"   minOccurs="0" maxOccurs="1"/>
+    </xsd:sequence>
+
+    <xsd:attribute name="id" type="idType" use="required" />
+    <xsd:attribute name="Class" use="required" >
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string" >
+          <xsd:enumeration value="Implicit" /> 
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attributeGroup ref="RelationFeatures" />
+
+ </xsd:complexType>
+
+  <!-- declaration of the Simple Arg1/2 type -->
+
+  <xsd:complexType name="ArgTypeSimple">
+
+    <xsd:sequence>
+      <xsd:element ref="RawText" minOccurs="1" maxOccurs="1"/>
+      <xsd:element ref="TreeRef" minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+
+  </xsd:complexType>
+
+  <!-- declaration of the Complex Arg1/2 type with an optional Attribution element -->
+
+  <xsd:complexType name="ArgTypeComplex">
+
+    <xsd:sequence>
+      <xsd:element ref="Attribution" minOccurs="0" maxOccurs="1"/>
+      <xsd:element ref="RawText" minOccurs="1" maxOccurs="1"/>
+      <xsd:element ref="TreeRef" minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+
+    <xsd:attributeGroup ref="RelationFeatures"/>
+  </xsd:complexType>
+
+  <!-- declaration of the RawText element
+       these are just raw strings and spaces are not important -->
+
+  <xsd:element name="RawText" type="xsd:token"/>
+
+  <!-- declaration of the TreeRef element -->
+
+  <xsd:element name="TreeRef" type="TreeRefType"/>
+
+  <!-- declaration of the TreeRef element -->
+
+  <xsd:element name="Attribution" type="ArgTypeSimple"/>
+
+  <!-- declaration of the TreeRef type -->
+
+  <xsd:complexType name="TreeRefType">
+
+    <xsd:sequence>
+      <xsd:element name="tr" type="trType" minOccurs="1" maxOccurs="unbounded"/>
+    </xsd:sequence>
+
+  </xsd:complexType>
+
+  <!-- declaration of the trType type -->
+
+  <xsd:complexType name="trType">
+      <xsd:attribute name="idref" type="idrefType" use="required"/>
+  </xsd:complexType>
+
+  <!-- declaration of the ConnHeadType for Explicit Relation element -->
+
+  <xsd:complexType name="ConnHeadTypeExplicit">
+
+    <xsd:sequence>
+      <xsd:element ref="Attribution" minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="Connective" type="ConnectiveTypeComplex" minOccurs="1" maxOccurs="1"/>
+      <xsd:element ref="RawText" minOccurs="1" maxOccurs="1"/>
+      <xsd:element ref="TreeRef" minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+
+  </xsd:complexType>
+
+  <!-- declaration of the ConnHeadType for AltLex Relation element -->
+
+  <xsd:complexType name="ConnHeadTypeAltLex">
+
+    <xsd:sequence>
+      <xsd:element ref="Attribution" minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="Connective" type="ConnectiveTypeSimple" minOccurs="1" maxOccurs="1"/>
+      <xsd:element ref="RawText" minOccurs="1" maxOccurs="1"/>
+      <xsd:element ref="TreeRef" minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+
+  </xsd:complexType>
+
+  <!-- declaration of the ConnHeadType for Implicit Relation element -->
+
+  <xsd:complexType name="ConnHeadTypeImplicit">
+
+    <xsd:sequence>
+      <xsd:element ref="Attribution" minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="Conn1" type="ConnectiveTypeComplex" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="Conn2" type="ConnectiveTypeComplex" minOccurs="0" maxOccurs="1"/>
+    </xsd:sequence>
+
+  </xsd:complexType>
+
+  <!-- declaration of the Complex Connective type with 3 attributes  -->
+
+  <xsd:complexType name="ConnectiveTypeComplex">
+      <xsd:attributeGroup ref="ConnectiveFeaturesComplex"/>
+  </xsd:complexType>
+
+  <!-- declaration of the Simple Connective type with 2 attributes  -->
+
+  <xsd:complexType name="ConnectiveTypeSimple">
+      <xsd:attributeGroup ref="ConnectiveFeaturesSimple"/>
+  </xsd:complexType>
+
+  <!-- declaration of the Features attribute group with 4 attributes  -->
+
+  <xsd:attributeGroup name="RelationFeatures">
+  
+    <xsd:attribute name="Source" type="xsd:string" use="required" />
+    <xsd:attribute name="Type" type="xsd:string" use="required" />
+    <xsd:attribute name="Polarity" type="xsd:string" use="required" />
+    <xsd:attribute name="Determinacy" type="xsd:string" use="required" />
+
+  </xsd:attributeGroup>
+
+  <!-- declaration of the Complex Features for Connectives attribute group with 3 attributes  -->
+
+  <xsd:attributeGroup name="ConnectiveFeaturesComplex">
+  
+    <xsd:attribute name="ConnType" type="xsd:string" use="required" />
+    <xsd:attribute name="SemanticClass1" type="xsd:string" use="required" />
+    <xsd:attribute name="SemanticClass2" type="xsd:string" use="optional" />
+
+  </xsd:attributeGroup>
+
+  <!-- declaration of the Simple Features for Connectives attribute group with 2 attributes  -->
+
+  <xsd:attributeGroup name="ConnectiveFeaturesSimple">
+  
+    <xsd:attribute name="SemanticClass1" type="xsd:string" use="required" />
+    <xsd:attribute name="SemanticClass2" type="xsd:string" use="optional" />
+
+  </xsd:attributeGroup>
+
+</xsd:schema>
