@@ -118,18 +118,28 @@ declare function pdtb:pos_of_tree($t as element(tree)*) as xs:string*
     string-join((for $b in $t//b[@pos] return $b/@pos), " ")
 };
 
-(:
+(:~
+: output words and their POS tags in a manner of word(POS) in a sentence
+:
+: @param $s a <s> element
+: @return a string containing all word(POS) sequences, delimited with spaces
+:)
 declare function pdtb:text_pos_of_s($s as element(s)*) as xs:string*
 {
     string-join((for $t in $s/graph/terminals/t return concat($t/@word, '(', $t/@pos, ')')), " ")
 };
+
+(:~
+: output words and their POS tags in a manner of word(POS) in a tree
+:
+: @param $s a <tree> element
+: @return a string containing all word(POS) sequences, delimited with spaces
 :)
-(:
 declare function pdtb:text_pos_of_tree($t as element(tree)) as xs:string*
 {
     string-join((for $b in $t//b[@pos] return concat($b/@word, '(', $b/@pos, ')')), " ")
 };
-:)
+
 
 (:~
 : Find out an id of a tree element belongs to which relation.
