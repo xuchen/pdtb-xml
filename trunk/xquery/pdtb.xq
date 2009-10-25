@@ -8,6 +8,193 @@
 
 module namespace pdtb = 'http://code.google.com/p/pdtb-xml/pdtb.xq';
 
+(:~
+: find all <b> elements that match pattern with $a.
+: The patterns match the Stanford Tregex pattern
+: Specifically, when knowing
+: an A and a pattern, this function returns the B that follows any of the following realtions:
+:
+: A << B    
+:   A dominates B  
+: A >> B 
+:   A is dominated by B  
+: A < B 
+:   A immediately dominates B  
+: A .. B 
+:   A precedes B 
+: A . B 
+:   A immediately precedes B 
+: A ,, B 
+:   A follows B 
+: A , B 
+:   A immediately follows B 
+: A <<, B 
+:   B is a leftmost descendent of A 
+: A <<- B 
+:   B is a rightmost descendent of A 
+: A >>, B 
+:   A is a leftmost descendent of B 
+: A >>- B 
+:   A is a rightmost descendent of B 
+: A <, B 
+:   B is the first child of A 
+: A >, B 
+:   A is the first child of B 
+: A <- B 
+:   B is the last child of A
+: A >- B 
+:   A is the last child of B 
+: A <: B 
+:   B is the only child of A
+: A >: B 
+:   A is the only child of B 
+: A <<: B 
+:   A dominates B via an unbroken chain (length > 0) of unary local trees. 
+: A >>: B 
+:   A is dominated by B via an unbroken chain (length > 0) of unary local trees. 
+: A $.. B 
+:   A is a sister of B and precedes B 
+: A $,, B 
+:   A is a sister of B and follows B 
+: A $. B 
+:   A is a sister of B and immediately precedes B 
+: A $, B 
+:   A is a sister of B and immediately follows B 
+:
+:
+: The following pattern is not supported by this function for some explicit or implicit reasons:
+A <i B 
+   B is the ith child of A (i > 0) 
+A >i B 
+   A is the ith child of B (i > 0) 
+A <-i B 
+   B is the ith-to-last child of A (i > 0) 
+A >-i B 
+   A is the ith-to-last child of B (i > 0) 
+A $++ B 
+   A is a left sister of B (same as $.. for context-free trees) 
+A $-- B 
+   A is a right sister of B (same as $,, for context-free trees) 
+A $+ B 
+   A is the immediate left sister of B (same as $. for context-free trees) 
+A $- B 
+   A is the immediate right sister of B (same as $, for context-free trees) 
+A <+(C) B 
+   A dominates B via an unbroken chain of (zero or more) nodes matching description C 
+A >+(C) B 
+   A is dominated by B via an unbroken chain of (zero or more) nodes matching description C 
+A .+(C) B 
+   A precedes B via an unbroken chain of (zero or more) nodes matching description C 
+A ,+(C) B 
+   A follows B via an unbroken chain of (zero or more) nodes matching description C 
+A <<# B 
+   B is a head of phrase A 
+A >># B 
+   A is a head of phrase B 
+A <# B 
+   B is the immediate head of phrase A 
+A ># B 
+   A is the immediate head of phrase B 
+A == B 
+   A and B are the same node 
+A : B
+   [this is a pattern-segmenting operator that places no constraints on the relationship between A and B] 
+:
+:
+: @param $a a <b> element
+: @param $pattern a string representing a pattern, could be "&lt;&lt;" or "A dominates B", etc.
+: @return a <b> element matching $pattern with $a
+:
+: @see the file README-tregex.txt in http://nlp.stanford.edu/software/tregex.shtml
+:)
+
+declare function pdtb:find_matching_tree_node($a as element(b)*, $pattern as xs:string) as element(b)*
+{
+(:
+# &amp; refers to an ampersand (&) 
+# &lt; refers to a less-than symbol (<) 
+# &gt; refers to a greater-than symbol (>) 
+# &quot; refers to a double-quote mark (") 
+# &apos; refers to an apostrophe (')
+:)
+    let $id_a := $a/@id
+    let $tree := tokenize($id_a, "_")[1]
+    return 
+    if (not($a))
+    then ()
+    else if ($pattern eq "&lt;&lt;" or $pattern eq "dominates")
+    then $a/descendant::b
+    else if ($pattern eq "&gt;&gt;" or $pattern eq "A is dominated by B")
+    (: note, this doesn't return the top <tree> element :)
+    then $a/ancestor::b
+    else if($pattern eq "&lt;" or $pattern eq "A immediately dominates B")
+    then $a/child::b
+    else if($pattern eq "&gt;" or $pattern eq "A is immediately dominated by B")
+    then $a/parent::b
+    else if($pattern eq "$" or $pattern eq "A is a sister of B")
+    then $a/(following-sibling::b | preceding-sibling::b)
+    else if($pattern eq ".." or $pattern eq "A precedes B")
+    then $a/following::b[matches(@id, $tree)]
+    else if($pattern eq "." or $pattern eq "A immediately precedes B")
+    then $a/following::b[matches(@id, $tree)][1]
+    else if($pattern eq ",," or $pattern eq "A follows B")
+    then $a/preceding::b[matches(@id, $tree)]
+    else if($pattern eq "," or $pattern eq "A immediately follows B")
+    then $a/preceding::b[matches(@id, $tree)][last()]
+    else if($pattern eq "&lt;&lt;," or $pattern eq "B is a leftmost descendent of A")
+    (: the leftmost descendent must be a terminal, which has a @pos attribute
+     : also, it must always be the first in "the first child of the first child of ... $a"
+     : for instance, $a/@id is $1_2_3, then the id of its leftmost descendent must be
+     : something like: $1_2_3_1_1_1_1...
+     :)
+    then $a/descendant::b[@pos and matches(replace(@id, $id_a, ""), "^(_1)+$")]
+    else if($pattern eq "&lt;&lt;-" or $pattern eq "B is a rightmost descendent of A")
+    (: the rightmost descendent must be the LAST terminal, which has a @pos attribute :)
+    then $a/descendant::b[@pos][last()]
+    else if( ($pattern eq "&gt;&gt;," or $pattern eq "A is a leftmost descendent of B")
+     and number(tokenize($id_a, "_")[last()]) = 1)
+    (: since A is the leftmost descendent, it must ends with a "_1"
+     : also, it must always be the first in "the first child of the first child of ... $b"
+     : for instance, $b/@id is $1_2_3, then the id of its leftmost descendent ($a) must be
+     : something like: $1_2_3_1_1_1_1...
+     : note A could be the leftmost descendent of multiple B's
+     :)
+    then $a/ancestor::b[matches(replace($id_a, @id, ""), "^(_1)+$")]
+    else if(($pattern eq "&gt;&gt;-" or $pattern eq "A is a rightmost descendent of B")
+    and $a[@pos] and not($a/following-sibling::b) and number(tokenize($id_a, "_")[last()]) != 1)
+    (: the rightmost descendent $a must be a termninal, the last one of its siblings and not the only child of its parent :)   
+    (: $b must be $a's ancestor :)
+    then $a/ancestor::b[descendant::b[@pos][last()]/@id eq $id_a]
+    else if($pattern eq "&lt;," or $pattern eq "B is the first child of A")
+    then $a/child::b[1]
+    else if(($pattern eq "&gt;," or $pattern eq "A is the first child of B")
+    and not($a/preceding-sibling::b))
+    then $a/parent::*
+    else if($pattern eq "&lt;-" or $pattern eq "B is the last child of A")
+    then $a/child::b[last()]
+    else if(($pattern eq "&gt;-" or $pattern eq "A is the last child of B")
+    and not($a/following-sibling::b))
+    then $a/parent::*
+    else if($pattern eq "&lt;:" or $pattern eq "B is the only child of A")
+    then $a/child::b[last()=1]
+    else if(($pattern eq "&gt;:" or $pattern eq "A is the only child of B") 
+    and not($a/following-sibling::b) and not($a/preceding-sibling::b))
+    then $a/parent::*
+    else if($pattern eq "&lt;&lt;:" or $pattern eq "A dominates B via an unbroken chain of unary local trees")
+    then ($a/child::b[last()=1], pdtb:find_matching_tree_node($a/child::b[last()=1], "&lt;&lt;:"), $a/child::b[last()=1]/child::b[last()>1])
+    else if(($pattern eq "&gt;&gt;:" or $pattern eq "A is dominated by B via an unbroken chain of unary local trees")
+    and not($a/following-sibling::b) and not($a/preceding-sibling::b))
+    then ($a/parent::b, pdtb:find_matching_tree_node($a/parent::b, "&gt;&gt;:"))
+    else if($pattern eq "$.." or $pattern eq "A is a sister of B and precedes B")
+    then $a/following-sibling::b
+    else if($pattern eq "$,," or $pattern eq "A is a sister of B and follows B")
+    then $a/preceding-sibling::b
+    else if($pattern eq "$." or $pattern eq "A is a sister of B and immediately precedes B")
+    then $a/following-sibling::b[number(tokenize($id_a, "_")[last()]) - number(tokenize(@id, "_")[last()]) = -1]
+    else if($pattern eq "$," or $pattern eq "A is a sister of B and immediately follows B")
+    then $a/preceding-sibling::b[number(tokenize($id_a, "_")[last()]) - number(tokenize(@id, "_")[last()]) = 1]
+    else ()
+};
 
 (:~
 : find all words under a <t> or <nt> node
