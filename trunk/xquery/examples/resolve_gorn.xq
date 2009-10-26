@@ -11,17 +11,17 @@
 import module namespace pdtb = "http://code.google.com/p/pdtb-xml/pdtb.xq" at "../pdtb.xq" ;
 
 (: find  explicit relations :)
-(: and their POS (of the first word..) :)
+(: and their POS :)
 
 for $rel in doc("../../../test.xml")/corpus/Relations/*/Relation[@Class="Explicit"]
 
     let $connective := normalize-space(string($rel/ConnHead/RawText))
-    let $gorn :=  $rel/ConnHead/TreeRef/tr[1]
+    let $gorn :=  $rel/ConnHead/TreeRef/tr
     let $resolved := pdtb:resolve_gorn($gorn)
     let $pos := $resolved/@pos
     
     return
-        <rel uri="{base-uri($rel)}" connective="{$connective}" pos="{if ($pos) then string($pos) else 'nil'}">
+        <rel uri="{base-uri($rel)}" connective="{$connective}" pos="{$pos}">
             {$gorn}
             {$resolved}
         </rel>
