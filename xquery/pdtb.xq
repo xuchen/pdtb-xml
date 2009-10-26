@@ -109,7 +109,7 @@ A : B
 : @see or the Tgrep2 manual at http://tedlab.mit.edu/~dr/TGrep2/tgrep2.pdf
 :)
 
-declare function pdtb:find_matching_tree_node($a as element(b)*, $pattern as xs:string) as element(b)*
+declare function pdtb:find_matching_tree_node($a as element(b), $pattern as xs:string) as element(b)*
 {
 (:
 # &amp; refers to an ampersand (&) 
@@ -250,10 +250,10 @@ declare function pdtb:yield_nt($nt as element(nt)) as xs:string*
 (:~
 : Resolve a Gorn address given by a <tr> element.
 : 
-: @param $gorn a <tr> element which refers to a certain node in a tree
-: @return a <t> or <nt> element referred by $gorn, or a <no-node-found> element
+: @param $gorn a sequence of <tr> element which refers to a certain node in a tree
+: @return a sequence of <t> or <nt> element referred by $gorn, or a <no-node-found> element
 :)
-declare function pdtb:resolve_gorn($gorn as element(tr)) as element()
+declare function pdtb:resolve_gorn($gorn as element(tr)*) as element()*
  { 
    let $sid := $gorn/ancestor::corpus/body/s/tree//b[@id=$gorn/@idref]/@idref
    (:let $sid := $gorn/ancestor::*//id($gorn/@idref)/@idref:)
@@ -261,7 +261,7 @@ declare function pdtb:resolve_gorn($gorn as element(tr)) as element()
     if ($sid) 
     then $gorn/ancestor::corpus/body/s/graph//*[@id=$sid]
     (:then $gorn/ancestor::*//id($sid):)
-    else <no-node-found>{string($gorn/@idref)}</no-node-found>
+    else ()
  } ;
 
 (:~
