@@ -1,5 +1,7 @@
 (:~
-: This module provides basic APIs to access the pdtb-xml files.
+: This module provides basic APIs to access the pdtb-xml files. 
+: Most of the functions are partially tested with Saxon-HE 9.2
+: Bugs are still very possible.;-) 
 :
 : @author Xuchen Yao, Gosse Bouma
 : @version 2.2.0
@@ -251,7 +253,7 @@ declare function pdtb:yield_nt($nt as element(nt)) as xs:string*
 : Resolve a Gorn address given by a <tr> element.
 : 
 : @param $gorn a sequence of <tr> element which refers to a certain node in a tree
-: @return a sequence of <t> or <nt> element referred by $gorn, or a <no-node-found> element
+: @return a sequence of <t> or <nt> element referred by $gorn, or an empty element if not found
 :)
 declare function pdtb:resolve_gorn($gorn as element(tr)*) as element()*
  { 
@@ -264,6 +266,17 @@ declare function pdtb:resolve_gorn($gorn as element(tr)*) as element()*
     else ()
  } ;
 
+(:~
+: Resolve a Gorn address given by a <tr> element, return <b> elements.
+: 
+: @param $gorn a sequence of <tr> element which refers to a certain node in a tree
+: @return a sequence of <b> elements referred by $gorn, or an empty element if not found
+:)
+declare function pdtb:resolve_gorn_b($gorn as element(tr)*) as element(b)*
+ { 
+   return ($gorn/ancestor::corpus/body/s/tree//b[@id=$gorn/@idref])
+   (:let $sid := $gorn/ancestor::*//id($gorn/@idref)/@idref:)
+ } ;
 (:~
 : output all the words in a <s> element, delimited with spaces
 :
@@ -355,27 +368,56 @@ declare function pdtb:text_pos_of_tree($t as element(tree)) as xs:string*
 
 
 (:~
-: Find out an id of a tree element belongs to which relation.
-: For example, id "t20" is refered in a <tr> element in relation r12, 
-: then the function uses idref() to find out the id of that relation (r12).
-: For example, if an id is "t20_1_2", but the <tr> element refers to only "t20", 
-: then the function recursively calls itself by delecting 
-: the last _2, then _1, then gets t20, and thus traces to r12.
-: bug1: what if the function can't find one?
+: Find out which relations refer to a <b> or <tree> element.
+: For example, if an id is "t20_1_2", but some <tr> elements
+: refer to "t20" while some refer to "t20_1", 
+: then the function finds all relations that refer to this
+: tree element (t20_1_2) and its ancestors (t20_1, t20).
 :
-: @param $id the ID a <tr> element refers to
-: @param $R the <Relations> element in current document
-: @return an ID string of the relation that refers to $id  
+: @param $b a <b> or <tree> element
+: @return a relation which refers to $b  
+:
+: note: due to a minor pdtb-xml format flaw, a <tr> element can refer 
+: both a <tree> and a <b> element. It will be changed in the future
+: that it only refers to a <b> element 
 :)
-declare function pdtb:find_ref_relation($id as xs:string, $R as element(Relations)) as xs:string*
+declare function pdtb:find_ref_relation($b as element()) as element(Relation)*
 {
-    let $relation_id := $R//idref($id)
+    let $tree := tokenize($b/@id, "_")[1]
+    (: next release: 
+    let $b_ancestor := $b/ancestor::b
+    :)
+    let $b_ancestor := $b/ancestor-or-self::*[matches(@id, $tree)]
+    let $tr := $b/ancestor::corpus/Relations//tr/idref($b_ancestor/@id)
+    
     return
-        if ($relation_id)
-        then $relation_id/ancestor::Relation/@id
-        else pdtb:find_ref_relation(replace($id, "_\d+", ""), $R)
+        if (not($b))
+        then ()
+        else
+            ($tr/ancestor::Relation)
 };
 
+
+(:~
+: Find out which <tr> elements refer to a <b> or <tree> element.
+:
+: @param $b a <b> or <tree> element
+: @return a relation which refers to $b  
+:
+: @see pdtb:find_ref_relation()
+:)
+declare function pdtb:find_tr_of_ref_relation($b as element()) as element(tr)*
+{
+    let $tree := tokenize($b/@id, "_")[1]
+    (: next release: 
+    let $b_ancestor := $b/ancestor::b
+    :)
+    let $b_ancestor := $b/ancestor-or-self::*[matches(@id, $tree)]
+    let $tr := $b/ancestor::corpus/Relations//tr/idref($b_ancestor/@id)
+    
+    return
+            ($tr/parent::*)
+};
 (:~
 : 
 : This function gives the relations of the ranges of 2 nodes.
