@@ -1,6 +1,7 @@
 (:~
 : This module provides basic APIs to access the pdtb-xml files. 
-: Most of the functions are partially tested with Saxon-HE 9.2
+: This module is mainly used for the eXist database with some optimizations.
+: Most of the functions are partially tested with eXist-1.4
 : Bugs are still very possible.;-) 
 :
 : @author Xuchen Yao, Gosse Bouma
@@ -8,7 +9,7 @@
 : @since 12 October 2009
 :)
 
-module namespace pdtb = 'http://code.google.com/p/pdtb-xml/pdtb.xq';
+module namespace pdtb = 'http://code.google.com/p/pdtb-xml/pdtb-exist.xq';
 
 (:~
 : find all <b> elements that match pattern with $a.
@@ -16,6 +17,8 @@ module namespace pdtb = 'http://code.google.com/p/pdtb-xml/pdtb.xq';
 : Specifically, when knowing
 : an A and a pattern, this function returns the B that follows any of the following realtions:
 :
+: Warning: this function could be slow when calling from eXist!
+: Use Saxon instead!
 : A << B    
 :   A dominates B  
 : A >> B 
@@ -257,11 +260,10 @@ declare function pdtb:yield_nt($nt as element(nt)) as xs:string*
 :)
 declare function pdtb:resolve_gorn($gorn as element(tr)*) as element()*
  { 
-   let $sid := $gorn/ancestor::corpus/body/s/tree//b[@id=$gorn/@idref]/@idref
-   (:let $sid := $gorn/ancestor::*//id($gorn/@idref)/@idref:)
+   let $sid := $gorn/ancestor::corpus//b[@id=$gorn/@idref]/@idref
    return 
     if ($sid) 
-    then $gorn/ancestor::corpus/body/s/graph//*[@id=$sid]
+    then $gorn/ancestor::corpus//*[@id=$sid]
     (:then $gorn/ancestor::*//id($sid):)
     else ()
  } ;
@@ -273,10 +275,10 @@ declare function pdtb:resolve_gorn($gorn as element(tr)*) as element()*
 : @return a sequence of <b> elements referred by $gorn, or an empty element if not found
 :)
 declare function pdtb:resolve_gorn_b($gorn as element(tr)*) as element(b)*
-{
-   ($gorn/ancestor::corpus/body/s/tree//b[@id=$gorn/@idref])
-};
-
+ { 
+   return ($gorn/ancestor::corpus//b[@id=$gorn/@idref])
+   (:let $sid := $gorn/ancestor::*//id($gorn/@idref)/@idref:)
+ } ;
 (:~
 : output all the words in a <s> element, delimited with spaces
 :
@@ -330,7 +332,7 @@ declare function pdtb:array_text_id_of_b($b as element()*) as xs:string*
 :)
 declare function pdtb:pos_of_s($s as element(s)*) as xs:string*
 {
-    string-join((for $t in $s/graph/terminals/t return $t/@pos), " ")
+    string-join($s//t/@pos, " ")
 };
 
 (:~
@@ -352,7 +354,7 @@ declare function pdtb:pos_of_tree($t as element(tree)*) as xs:string*
 :)
 declare function pdtb:text_pos_of_s($s as element(s)*) as xs:string*
 {
-    string-join((for $t in $s/graph/terminals/t return concat($t/@word, '(', $t/@pos, ')')), " ")
+    string-join((for $t in $s//t return concat($t/@word, '(', $t/@pos, ')')), " ")
 };
 
 (:~
@@ -388,7 +390,7 @@ declare function pdtb:find_ref_relation($b as element()) as element(Relation)*
     let $b_ancestor := $b/ancestor::b
     :)
     let $b_ancestor := $b/ancestor-or-self::*[matches(@id, $tree)]
-    let $tr := $b/ancestor::corpus/Relations//tr/idref($b_ancestor/@id)
+    let $tr := $b/ancestor::corpus//*[@idref=$b_ancestor/@id]
     
     return
         if (not($b))
@@ -413,7 +415,7 @@ declare function pdtb:find_tr_of_ref_relation($b as element()) as element(tr)*
     let $b_ancestor := $b/ancestor::b
     :)
     let $b_ancestor := $b/ancestor-or-self::*[matches(@id, $tree)]
-    let $tr := $b/ancestor::corpus/Relations//tr/idref($b_ancestor/@id)
+    let $tr := $b/ancestor::corpus//*[@idref=$b_ancestor/@id]
     
     return
             ($tr/parent::*)
@@ -502,8 +504,8 @@ declare function pdtb:range_relation($range1first as xs:string?, $range1last as 
 declare function pdtb:range_relation($arg1 as element(), $arg2 as element() ) as xs:string
 {
     let $c := root($arg1)/corpus/body/s/graph
-    let $t_id_arg1 := pdtb:array_text_id_of_b(for $b in $arg1/TreeRef/tr/@idref return $c//id($b))
-    let $t_id_arg2 := pdtb:array_text_id_of_b(for $b in $arg2/TreeRef/tr/@idref return $c//id($b))
+    let $t_id_arg1 := pdtb:array_text_id_of_b($c//*[@id=$arg1/TreeRef/tr/@idref])
+    let $t_id_arg2 := pdtb:array_text_id_of_b($c//*[@id=$arg2/TreeRef/tr/@idref])
     let $t_id_arg1_first := $t_id_arg1[1]
     let $t_id_arg1_last := $t_id_arg1[last()]
     let $t_id_arg2_first := $t_id_arg2[1]
@@ -537,8 +539,8 @@ declare function pdtb:range_relation($arg1 as element(), $arg2 as element() ) as
 declare function pdtb:is_range_identical($arg1 as element(), $arg2 as element() ) as xs:boolean
 {
     let $c := root($arg1)/corpus/body/s/graph
-    let $t_id_arg1 := pdtb:array_text_id_of_b(for $b in $arg1/TreeRef/tr/@idref return $c//id($b))
-    let $t_id_arg2 := pdtb:array_text_id_of_b(for $b in $arg2/TreeRef/tr/@idref return $c//id($b))
+    let $t_id_arg1 := pdtb:array_text_id_of_b($c//*[@id=$arg1/TreeRef/tr/@idref])
+    let $t_id_arg2 := pdtb:array_text_id_of_b($c//*[@id=$arg1/TreeRef/tr/@idref])
     let $t_id_arg1_first := $t_id_arg1[1]
     let $t_id_arg1_last := $t_id_arg1[last()]
     let $t_id_arg2_first := $t_id_arg2[1]
@@ -565,6 +567,9 @@ declare function pdtb:is_range_identical($arg1 as element(), $arg2 as element() 
 : Warning: "range-identical", "range-crosses" and "range-overlaps" are symmetric, but
 : "range-before" and "range-contains" are not. 
 : So if $arg1 is "range-before" $arg2 then $arg2 is NOT "range-before" $arg1 
+:
+: Warning: this function could be slow when calling from eXist!
+: Use Saxon instead!
 :
 : @param $str range relation, must be exactly "range-identical", "range-before", 
 :                           "range-contains", "range-crosses", "range-overlaps".
