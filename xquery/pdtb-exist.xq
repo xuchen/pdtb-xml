@@ -418,7 +418,7 @@ declare function pdtb:find_tr_of_ref_relation($b as element()) as element(tr)*
     let $tr := $b/ancestor::corpus//*[@idref=$b_ancestor/@id]
     
     return
-            ($tr/parent::*)
+            ($tr)
 };
 (:~
 : 
