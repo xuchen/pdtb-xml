@@ -66,3 +66,17 @@ sub process_file {
     }
 }
 }}}
+
+=== Build a file list ===
+
+Simply use a linux *find* command to output paths of all the files to a single file. One path per line.
+
+=== Container ===
+
+Go to a directory where you want to put the container, and execute the following command:
+
+{{{
+dbxml_load_container -c pdtb.dbxml -e -f pdtb.list
+}}}
+
+pdtb.dbxml is the newly created container while pdtb.list contains all the file names. (For some unknown reason) This process might take as long as 3 hours and the final container size is around 2.0GB.
