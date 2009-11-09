@@ -1,0 +1,68 @@
+#How to use the Oracle Berkeley DB XML with PDTB XML.
+
+= Introduction =
+
+The [http://www.oracle.com/database/berkeley-db/xml/index.html Oracle Berkeley DB XML] is an XML database with XQuery access. Compared to [http://exist.sourceforge.net/ eXist], it automatically builds indexes. So the administration effort is kept minimum.
+
+Bear in mind that BDB XML is not a server but provides a set of APIs in C/C++/Java for users to access the database. However, with a set of simplified standalone utilities, querying on PDTB XML can still be accomplished.
+
+As this wiki is written, the BDB XML version 2.5.13 for linux is used.
+
+
+= Steps =
+
+== Build BDB XML ==
+
+After downloading the file, simply decompress it and follow the build instructions. Make sure the final executables are in your PATH environment, i.e. you should have the command *dbxml* and *dbxml_load_container*.
+
+== Put the XML files in a container ==
+
+=== Remove DTD ===
+A container is a place holding everything (such as indexes) in your XML files. We can use the command line utility *dbxml_load_container* to create a container for PDTB XML. When creating a container, dbxml_load_container tries to verify the XML files by accessing external DTDs. But unfortunately, dbxml_load_container is not programmed to be allowed to access the DTDs. So you might encounter this error:
+
+ Error adding XML data to container: pdtb.dbxml
+
+ Error: External access not allowed. Cannot resolve
+ entity: ../schema/pdtb.dtd
+
+The only solution seems to remove the DTD declarations in the XML files. So, if your PDTB XML files are converted using the pdtb-xml-2.1.0 version, you should remove the line containing DTD (in pdtb-xml-2.2.0, the final XML files won't contain this line). You can use the following perl script.
+
+{{{
+#! /usr/bin/perl
+
+# A simple script to remove the 2nd line of every XML file.
+#
+# Usage: perl remove_2nd_line.pl input_xml_dir output_dir
+# It reads every xml file  in input_xml_dir recursively and 
+# output all to output_dir without keeping the original directory structure
+# 
+# Author: Xuchen Yao, 9 Nov. 2009
+
+use File::Find;
+use File::Basename;
+
+$file_counter = 0;
+@ARGV = qw(.) unless @ARGV;
+$in_dir = $ARGV[0];
+$out_dir = $ARGV[1];
+$wn_perm = 0755;
+if (! -d $out_dir) { mkdir $out_dir, $wn_perm or warn "can't make $out_dir: $!"; }
+find ({no_chdir => 1, wanted => \&process_file}, $in_dir);
+print "number of files processed: $file_counter";
+
+sub process_file {
+    if (/\.xml$/i) {
+        $file_counter++;
+        open(IN, " < $_") or warn "can't open $File::Find::name for reading: $!";
+        $out = $out_dir."/".basename($_,@suffixlis);
+        open(OUT, " > $out") or warn "can't open $out for writing: $!";
+        $line=0;
+        while (<IN>) {
+            if ($line != 1) {print OUT $_;}
+            $line++;
+        }
+        close IN;
+        close OUT;
+    }
+}
+}}}
