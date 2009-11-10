@@ -122,4 +122,13 @@ Now double click "system" in your resource panel, then double click "config", th
     </index>
 </collection>
 }}}
-}}}
+
+The file `collection.xconf` contains the configuration options for indexing. It will work when we put XML files into the database.
+
+=== Upload files & build indexes ===
+
+Now we should go back to the original resource panel where the folder `pdtb-xml` is in parallel with the folder `system`. Enter `pdtb-xml`, click "File->Store files / directories", navigate to the folder containing all the PDTB XML files, select all the sub directories `00` to `24`. eXist will start uploading the files and building the indexes.
+
+Depending on your machine, the whole process might take 30 minutes to 1 hour. The final index size should be around 1.3 GB. It should be in the directory `eXist-install-dir/webpp/WEB-INF`.
+
+== Query ==
