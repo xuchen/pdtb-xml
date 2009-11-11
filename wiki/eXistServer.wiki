@@ -2,7 +2,7 @@
 
 = Introduction =
 
-[http://exist.sourceforge.net/ eXist] is an open source XML database. It provides functionalities of XQuery/XSLT. It runs in a server mode, so can be deployed and users access the database by http request or a simple GUI querying interface.
+[http://exist.sourceforge.net/ eXist] is an open source XML database. It provides functionalities of XQuery/XSLT. It runs in a server mode, so can be deployed across the network and users access the database by http request or a simple GUI querying interface.
 
 As this wiki is written, eXist-1.4-RC1 is used.
 
@@ -10,7 +10,7 @@ As this wiki is written, eXist-1.4-RC1 is used.
 
 == Install and configure eXist ==
 
-Simply follow the [http://exist.sourceforge.net/quickstart.html quick start] page to install eXist. Then we need to do some configuration against PDTB XML.
+Simply follow the [http://exist.sourceforge.net/quickstart.html quick start] page to install eXist. Then we need to do some configuration against PDTB XML. *The following paths all assume you are now in the eXist installation directory.*
 
 === No validation ===
 
@@ -66,7 +66,7 @@ Now we can access it through a web interface at `http://localhost:8080/exist`. B
 bin/client.sh
 }}}
 
-Enter your name and password. Now we are in a GUI. Depending on our user attributes, we can perform different tasks. But here we are the administrator so build the indexes for general use.
+Enter your name and password. Now we are in a GUI. Depending on our user attributes, we can perform different tasks. But here we are the administrator so we can build the indexes for general use.
 
 === Configure indexes ===
 
