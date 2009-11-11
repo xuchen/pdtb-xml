@@ -72,7 +72,9 @@ Enter your name and password. Now we are in a GUI. Depending on our user attribu
 
 The default policy of building indexes doesn't suit PDTB XML very well, so we need to define what we want to index ourselves. Refer to [http://exist.sourceforge.net/indexing.html this page] if you want to understand what the following codes mean.
 
-Click "File->Create collection" to create a new collection in your panel called "pdtb-xml". Now we could have clicked "Tools->Edit Indexes" to configure the indexes through a GUI, but since the configuration options are a lot, we won't do that.
+Click "File->Create collection" to create a new collection in your panel called "pdtb-xml". Now we could have clicked "Tools->Edit Indexes" to configure the indexes through a GUI as shown below, but since the configuration options are a lot, we won't do that.
+
+http://code.google.com/p/pdtb-xml/source/browse/wiki/images/eXist_edit_index.png
 
 Now double click "system" in your resource panel, then double click "config", then "db", then "pddb-xml", then "File->Store files / directories", there would be a file selection window popping up, change the "Files of Type" option to "All files", and put the following file with the exact name `collection.xconf` there:
 
