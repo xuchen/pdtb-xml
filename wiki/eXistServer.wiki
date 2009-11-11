@@ -1,5 +1,7 @@
 #How to use the eXist Database to query in a client-server mode
 
+<wiki:toc max_depth="4" />
+
 = Introduction =
 
 [http://exist.sourceforge.net/ eXist] is an open source XML database. It provides functionalities of XQuery/XSLT. It runs in a server mode, so can be deployed across the network and users access the database by http request or a simple GUI querying interface.
