@@ -128,17 +128,17 @@ declare function pdtb:find_matching_tree_node($a as element(b), $pattern as xs:s
     return 
     if (not($a))
     then ()
-    else if ($pattern eq "&lt;&lt;" or $pattern eq "A dominates B")
+    else if ($pattern eq "&lt;&lt;" or $pattern eq "[[" or $pattern eq "A dominates B")
     then $a/descendant::b
     
-    else if ($pattern eq "&gt;&gt;" or $pattern eq "A is dominated by B")
+    else if ($pattern eq "&gt;&gt;" or $pattern eq "]]" or $pattern eq "A is dominated by B")
     (: note, this doesn't return the top <tree> element :)
     then $a/ancestor::b
     
-    else if($pattern eq "&lt;" or $pattern eq "A immediately dominates B")
+    else if($pattern eq "&lt;" or $pattern eq "[" or $pattern eq "A immediately dominates B")
     then $a/child::b
     
-    else if($pattern eq "&gt;" or $pattern eq "A is immediately dominated by B")
+    else if($pattern eq "&gt;" or $pattern eq "]" or $pattern eq "A is immediately dominated by B")
     then $a/parent::b
     
     else if($pattern eq "$" or $pattern eq "A is a sister of B")
@@ -156,7 +156,7 @@ declare function pdtb:find_matching_tree_node($a as element(b), $pattern as xs:s
     else if($pattern eq "," or $pattern eq "A immediately follows B")
     then $a/preceding::b[last()]
     
-    else if($pattern eq "&lt;&lt;," or $pattern eq "B is a leftmost descendant of A")
+    else if($pattern eq "&lt;&lt;," or $pattern eq "[[," or $pattern eq "B is a leftmost descendant of A")
     (: the leftmost descendant must be a terminal, which has a @pos attribute
      : also, it must always be the first in "the first child of the first child of ... $a"
      : for instance, $a/@id is $1_2_3, then the id of its leftmost descendant must be
@@ -164,11 +164,11 @@ declare function pdtb:find_matching_tree_node($a as element(b), $pattern as xs:s
      :)
     then $a/descendant::b[@pos and matches(replace(@id, $id_a, ""), "^(_1)+$")]
     
-    else if($pattern eq "&lt;&lt;-" or $pattern eq "B is a rightmost descendant of A")
+    else if($pattern eq "&lt;&lt;-" or $pattern eq "[[-" or $pattern eq "B is a rightmost descendant of A")
     (: the rightmost descendant must be the LAST terminal, which has a @pos attribute :)
     then $a/descendant::b[@pos][last()]
     
-    else if( ($pattern eq "&gt;&gt;," or $pattern eq "A is a leftmost descendant of B")
+    else if( ($pattern eq "&gt;&gt;," or $pattern eq "]]," or $pattern eq "A is a leftmost descendant of B")
      and number(tokenize($id_a, "_")[last()]) = 1)
     (: since A is the leftmost descendant, it must ends with a "_1"
      : also, it must always be the first in "the first child of the first child of ... $b"
@@ -178,37 +178,37 @@ declare function pdtb:find_matching_tree_node($a as element(b), $pattern as xs:s
      :)
     then $a/ancestor::b[matches(replace($id_a, @id, ""), "^(_1)+$")]
     
-    else if(($pattern eq "&gt;&gt;-" or $pattern eq "A is a rightmost descendant of B")
+    else if(($pattern eq "&gt;&gt;-" or $pattern eq "]]-" or $pattern eq "A is a rightmost descendant of B")
         and $a[@pos] and not($a/following-sibling::b) and number(tokenize($id_a, "_")[last()]) != 1)
     (: the rightmost descendant $a must be a termninal, the last one of its siblings and not the only child of its parent :)   
     (: $b must be $a's ancestor :)
     then $a/ancestor::b[descendant::b[@pos][last()]/@id eq $id_a]
     
-    else if($pattern eq "&lt;," or $pattern eq "B is the first child of A")
+    else if($pattern eq "&lt;," or $pattern eq "[," or $pattern eq "B is the first child of A")
     then $a/child::b[1]
     
-    else if(($pattern eq "&gt;," or $pattern eq "A is the first child of B")
+    else if(($pattern eq "&gt;," or $pattern eq "]," or $pattern eq "A is the first child of B")
         and not($a/preceding-sibling::b))
     then $a/parent::*
     
-    else if($pattern eq "&lt;-" or $pattern eq "B is the last child of A")
+    else if($pattern eq "&lt;-" or $pattern eq "[-" or $pattern eq "B is the last child of A")
     then $a/child::b[last()]
     
-    else if(($pattern eq "&gt;-" or $pattern eq "A is the last child of B")
+    else if(($pattern eq "&gt;-" or $pattern eq "]-" or $pattern eq "A is the last child of B")
         and not($a/following-sibling::b))
     then $a/parent::*
     
-    else if($pattern eq "&lt;:" or $pattern eq "B is the only child of A")
+    else if($pattern eq "&lt;:" or $pattern eq "[:" or $pattern eq "B is the only child of A")
     then $a/child::b[last()=1]
     
-    else if(($pattern eq "&gt;:" or $pattern eq "A is the only child of B") 
+    else if(($pattern eq "&gt;:" or $pattern eq "]:" or $pattern eq "A is the only child of B") 
         and not($a/following-sibling::b) and not($a/preceding-sibling::b))
     then $a/parent::*
     
-    else if($pattern eq "&lt;&lt;:" or $pattern eq "A dominates B via an unbroken chain of unary local trees")
+    else if($pattern eq "&lt;&lt;:" or $pattern eq "[[:" or $pattern eq "A dominates B via an unbroken chain of unary local trees")
     then ($a/child::b[last()=1], pdtb:find_matching_tree_node($a/child::b[last()=1], "&lt;&lt;:"), $a/child::b[last()=1]/child::b[last()>1])
     
-    else if(($pattern eq "&gt;&gt;:" or $pattern eq "A is dominated by B via an unbroken chain of unary local trees")
+    else if(($pattern eq "&gt;&gt;:" or $pattern eq "]]:" or $pattern eq "A is dominated by B via an unbroken chain of unary local trees")
         and not($a/following-sibling::b) and not($a/preceding-sibling::b))
     then ($a/parent::b, pdtb:find_matching_tree_node($a/parent::b, "&gt;&gt;:"))
     
@@ -226,7 +226,6 @@ declare function pdtb:find_matching_tree_node($a as element(b), $pattern as xs:s
     
     else ()
 };
-
 (:~
 : find all words under a <t> or <nt> node
 :
